@@ -21,10 +21,12 @@ from django.shortcuts import render
 from django.conf import settings
 from django.views import View
 
-from models import JDCommentAnalysis
-from models import AnalysisUser
+from .models import JDCommentAnalysis
+from .models import AnalysisUser
 from sqlhelper import SqlHelper
 from django.core.signals import request_finished
+
+
 
 red = redis.StrictRedis(host = config.redis_host, port = config.redis_part, db = config.redis_db,
                         password = config.redis_pass)
@@ -65,12 +67,14 @@ def runspider(request):
 
             if result == None:
                 name = 'jd'
-                cmd = 'cd {dir};python manage.py real_time_analysis -a name={name} -a guid={guid} ' \
+                
+                cmd = 'python manage.py real_time_analysis -a name={name} -a guid={guid} ' \
                       '-a product_id={product_id} -a url={url};'. \
                     format(url = str(url), name = name, dir = settings.BASE_DIR, guid = data.get('guid'),
                            product_id = product_id)
-
+                utils.log(cmd)
                 subprocess.Popen(cmd, shell = True)
+                utils.log("Scrapy run finish!")
             else:
                 if force == 'false':
                     utils.log('数据库中存在数据，从数据库中取出分析结果')
@@ -91,7 +95,7 @@ def runspider(request):
                     subprocess.Popen(cmd, shell = True)
         else:
             data['info'] = '传入网址有误，请检查后重新输入,请输入以下格式的网址:\n%s' % 'https://item.jd.com/3995645.html'
-    except Exception, e:
+    except Exception as e:
         logging.error('run spider exception:%s' % e)
         data['info'] = '出现错误，错误原因：%s' % e
 
@@ -116,10 +120,11 @@ def randitem(request):
 
             cmd = 'cd {dir};python manage.py rand_item_analysis -a name={name} -a guid={guid}'. \
                 format(dir = settings.BASE_DIR, name = 'jd', guid = data.get('guid'))
+            utils.log(cmd)
             subprocess.Popen(cmd, shell = True)
         else:
             data['info'] = '传入参数有误'
-    except Exception, e:
+    except Exception as e:
         logging.error('rand item exception:%s' % e)
         data['info'] = '出现错误，错误原因：%s' % e
 
@@ -145,7 +150,7 @@ def analysis(request):
                 utils.log('info:%s' % data.get('info'))
                 response = HttpResponse(json.dumps(data), content_type = "application/json")
                 return response
-    except Exception, e:
+    except Exception as e:
         logging.error('analysis data exception:%s' % e)
 
     response = HttpResponse(json.dumps(data), content_type = "application/json")
@@ -159,7 +164,7 @@ def register_spider(request):
         data['guid'] = guid
 
         red.lpush('spiders', guid)
-    except Exception, e:
+    except Exception as e:
         logging.error('register_spider exception:%s' % e)
 
     response = HttpResponse(json.dumps(data), content_type = "application/json")
@@ -172,12 +177,12 @@ def delete_spider(request):
     }
     try:
         guid = request.GET.get('guid', -1)
-        print('guid:%s' % guid)
+        print(('guid:%s' % guid))
         if guid != -1 and guid != None:
             red.delete(guid)
             red.lrem('spiders', 1, guid)
             data['result'] = True
-    except Exception, e:
+    except Exception as e:
         logging.error('analysis data exception:%s' % e)
 
     response = HttpResponse(json.dumps(data), content_type = "application/json")
@@ -235,7 +240,7 @@ def full_comment(request):
                     data['info'] = '已经收到信息，正在开始分析'
                 else:
                     data['info'] = '输入参数不符合规范，请重新输入'
-    except Exception, e:
+    except Exception as e:
         data['info'] = '出现错误：%s' % e
 
     response = HttpResponse(json.dumps(data), content_type = "application/json")
@@ -246,7 +251,7 @@ def full_comment(request):
 
 class AnalysisResultView(View):
     def get(self, request, param):
-        print('path:%s param:%s' % (request.path, param))
+        print(('path:%s param:%s' % (request.path, param)))
         try:
             article = JDCommentAnalysis.objects.filter(Q(guid__iexact = param) | Q(product_id__iexact = param)).first()
             article.content = markdown2.markdown(text = article.content, extras = {

@@ -2,10 +2,10 @@
 
 # local
 database_config = {
-    'host': 'localhost',
+    'host': '10.139.168.84',
     'port': 3306,
-    'user': 'root',
-    'password': '123456',
+    'user': 'pig',
+    'password': 'pig',
     'charset': 'utf8',
 }
 
@@ -15,7 +15,7 @@ jd_item_table = 'item'
 analysis_item_table = 'analysis'
 
 redis_pass = ''
-redis_host = 'localhost'
+redis_host = '10.139.168.84'
 redis_part = '6379'
 redis_db = 10
 

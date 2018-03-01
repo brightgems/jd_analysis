@@ -27,9 +27,9 @@ class Analysis(object):
         self.url = kwargs.get('url')
         # self.product_id = '3995645'
         # self.product_id = '10213303572'
-        self.font_name = 'DroidSansFallback.ttf'
+        self.font_name = 'FZYTK.ttf'
         self.font_path = '%s/font/%s' % (settings.BASE_DIR, self.font_name)
-
+        print(self.font_path)
         self.full_result = ''
 
         self.bar_width = 0.45
@@ -43,6 +43,7 @@ class Analysis(object):
         prop = font_manager.FontProperties(fname = self.font_path)
         matplotlib.rcParams['font.family'] = prop.get_name()
 
+        print(self.font_path)
         try:
             command = "SELECT product_color, product_size, user_level_name, user_province, reference_time, " \
                       "creation_time,is_mobile, user_client_show, days, user_level_name FROM {0}". \
@@ -50,7 +51,7 @@ class Analysis(object):
 
             result = self.sql.query(command, commit = False, cursor_type = 'dict')
             self.data_frame = DataFrame(result)
-        except Exception, e:
+        except Exception as e:
             logging.exception('analysis init exception msg:%s' % e)
             raise CusException('analysis_init', 'analysis_init error:%s' % e)
 
@@ -78,7 +79,7 @@ class Analysis(object):
             self.analysis_mobile()
             self.analysis_buy_days()
             self.analysis_user_level()
-        except Exception, e:
+        except Exception as e:
             self.record_result('出现错误。错误原因:%s' % e)
             logging.exception('analysis run exception msg:%s' % e)
             raise CusException('analysis_run', 'analysis_run error:%s' % e)
@@ -213,7 +214,7 @@ class Analysis(object):
 
         obj = self.data_frame['user_client_show']
         obj = obj.value_counts()
-        obj = obj.rename({u'': u'其他，网页端'})
+        obj = obj.rename({'': '其他，网页端'})
         # obj = obj.append(mobile_obj)
         # obj.plot(style = 'ro-')
         ax = obj.plot(kind = 'bar', alpha = self.opacity, color = self.color)
@@ -255,7 +256,7 @@ class Analysis(object):
         ax.set_xlabel('颜色')
         ax.set_ylabel('数量')
 
-        obj = obj.rename({'': u'其他'})
+        obj = obj.rename({'': '其他'})
         ax = obj.plot(kind = 'bar', alpha = self.opacity, color = self.color)
 
         # 是否倾斜显示 X 轴标签
@@ -291,7 +292,7 @@ class Analysis(object):
         ax.set_xlabel('配置')
         ax.set_ylabel('数量')
 
-        obj = obj.rename({'': u'其他'})
+        obj = obj.rename({'': '其他'})
         ax = obj.plot(kind = 'bar', alpha = self.opacity, color = self.color, rot = 0)
 
         # 是否倾斜显示 X 轴标签
@@ -327,7 +328,7 @@ class Analysis(object):
         ax.set_xlabel('省份名称')
         ax.set_ylabel('数量')
 
-        obj = obj.rename({'': u'未知'})
+        obj = obj.rename({'': '未知'})
         ax = obj.plot(kind = 'bar', alpha = self.opacity, color = self.color, rot = 0)
 
         # 是否倾斜显示 X 轴标签

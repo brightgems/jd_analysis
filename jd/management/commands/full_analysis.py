@@ -21,6 +21,7 @@ from twisted.internet import reactor, defer
 from cus_exception import CusException
 from jd.analysis_jd_item import Analysis
 from jd.send_email import send_email
+import imp
 
 
 # python manage.py run_analysis
@@ -33,7 +34,7 @@ class Command(BaseCommand):
 
     #必须实现的方法
     def handle(self, *args, **options):
-        reload(sys)
+        imp.reload(sys)
         sys.setdefaultencoding('utf-8')
 
         spargs = utils.arglist_to_dict(options['spargs'])
@@ -44,26 +45,26 @@ class Command(BaseCommand):
                                 password = config.redis_pass)
         run = red.get(key)
         if run != None:  # 如果有正在运行的进程则等待
-            print('have running waiting time:%s' % str(datetime.datetime.now()))
+            print(('have running waiting time:%s' % str(datetime.datetime.now())))
             return
 
         count = red.llen('analysis_users')
         if count <= 0:  # 如果 redis 中没有需要查询的数据
-            print('not data waiting time:%s' % str(datetime.datetime.now()))
+            print(('not data waiting time:%s' % str(datetime.datetime.now())))
             return
 
         user = red.lpop('analysis_users')
         red.set(key, user)
-        print('running... user:%s' % user)
+        print(('running... user:%s' % user))
         info = json.loads(user)
         try:
             run_als = RunAnalysis(red, key, user)
             run_als.run()
-        except CusException, e:
+        except CusException as e:
             info['name'] = e.name
             info['error_msg'] = e.error_msg
             red.lpush('retry_list', info)
-        except Exception, e:
+        except Exception as e:
             info['name'] = 'unknown'
             info['error_msg'] = e
             logging.exception('RunAnalysis Exception msg:%s' % e)
@@ -71,7 +72,7 @@ class Command(BaseCommand):
         finally:
             red.delete(key)
 
-        print ('finish time:%s' % datetime.datetime.now())
+        print(('finish time:%s' % datetime.datetime.now()))
 
 
 class RunAnalysis(object):

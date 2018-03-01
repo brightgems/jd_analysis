@@ -1,0 +1,5 @@
+Python-Mysql
+django == 1.1.11
+redis
+scrapy
+wordcloud

@@ -29,7 +29,7 @@ class ProxyManager(object):
 
             self.update_time = time.time()
             utils.log('*****************proxy manager  proxys:****************\n%s' % (r.text))
-        except Exception, e:
+        except Exception as e:
             logging.exception('proxymanager update_proxy msg:%s' % e)
 
     def push_proxy(self, proxy):

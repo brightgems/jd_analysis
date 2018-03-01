@@ -4,6 +4,7 @@ import logging
 import sys
 import matplotlib
 import time
+import imp
 
 matplotlib.use('Agg')
 
@@ -35,8 +36,8 @@ class Command(BaseCommand):
 
     #必须实现的方法
     def handle(self, *args, **options):
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
+        imp.reload(sys)
+        # sys.setdefaultencoding('utf-8')
         os.chdir(sys.path[0])
 
         spargs = utils.arglist_to_dict(options['spargs'])
@@ -88,14 +89,14 @@ def runspider(spargs):
             format = '%(levelname)s %(asctime)s: %(message)s',
             level = logging.ERROR
     )
-    print "get_project_settings().attributes:", get_project_settings().attributes['SPIDER_MODULES']
+    print("get_project_settings().attributes:", get_project_settings().attributes['SPIDER_MODULES'])
     process = CrawlerProcess(get_project_settings())
     start_time = time.time()
     try:
         logging.info('进入爬虫')
         process.crawl(name, **spargs)
         process.start()
-    except Exception, e:
+    except Exception as e:
         process.stop()
         logging.error("url:%s, errorMsg:%s" % (url, e.message))
     finally:

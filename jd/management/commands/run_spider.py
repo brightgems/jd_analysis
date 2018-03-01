@@ -22,8 +22,8 @@ class Command(BaseCommand):
     #必须实现的方法
     def handle(self, *args, **options):
         spargs = arglist_to_dict(options['spargs'])
-        print('spargs:%s' % spargs)
-        print os.getcwd()
+        print(('spargs:%s' % spargs))
+        print(os.getcwd())
         runspider(spargs = spargs)
 
 
@@ -42,14 +42,14 @@ def runspider(spargs):
             format = '%(levelname)s %(asctime)s: %(message)s',
             level = logging.ERROR
     )
-    print "get_project_settings().attributes:", get_project_settings().attributes['SPIDER_MODULES']
+    print("get_project_settings().attributes:", get_project_settings().attributes['SPIDER_MODULES'])
     process = CrawlerProcess(get_project_settings())
     start_time = time.time()
     try:
         logging.info('进入爬虫')
         process.crawl(name, **spargs)
         process.start()
-    except Exception, e:
+    except Exception as e:
         process.stop()
         logging.error("url:%s, errorMsg:%s" % (url, e.message))
     finally:

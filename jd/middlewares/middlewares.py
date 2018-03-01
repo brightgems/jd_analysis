@@ -23,7 +23,7 @@ class ProxyMiddleware(object):
 
             if request.meta.get('is_proxy', False):
                 request.meta['proxy'] = proxymng.get_proxy()
-        except Exception, e:
+        except Exception as e:
             logging.warning('ProxyMiddleware Exception:%s' % str(e))
 
     def process_exception(self, request, exception, spider):

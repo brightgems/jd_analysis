@@ -13,9 +13,10 @@ from scrapy.http.cookies import CookieJar
 from scrapy.utils.project import get_project_settings
 from scrapy import Spider
 from scrapy import Request
+import imp
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+imp.reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 
 class JDSpider(Spider):
@@ -30,6 +31,7 @@ class JDSpider(Spider):
         # self.url = 'https://item.jd.com/3133859.html'
         pattern = re.compile('\d+', re.S)
         self.product_id = re.search(pattern, self.url).group()
+        self.log("spider starting..")
         self.log('product_id:%s' % self.product_id)
         self.item_table = 'item_%s' % self.product_id
 
@@ -38,6 +40,7 @@ class JDSpider(Spider):
         self.sql = kwargs.get('sql')
         self.red = kwargs.get('red')
         self.init()
+        
 
     def init(self):
         command = (
@@ -107,7 +110,8 @@ class JDSpider(Spider):
         self.log('item_ids:%s' % item_ids)
 
         pattern = re.compile('commentVersion:\'(\d+)\'', re.S)
-        comment_version = re.search(pattern, response.body).group(1)
+        
+        comment_version = re.search(pattern, response.text).group(1)
 
         # sort type 5:推荐排序 6:时间排序
         url = 'https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv' \

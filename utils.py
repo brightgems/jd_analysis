@@ -18,7 +18,7 @@ from sqlhelper import SqlHelper
 # 自定义的日志输出
 def log(msg, level = logging.DEBUG):
     logging.log(level, msg)
-    print('%s [%s], msg:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), level, msg))
+    print(('%s [%s], msg:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), level, msg)))
 
     # if level == logging.WARNING or level == logging.ERROR:
     #     for line in traceback.format_stack():
@@ -48,7 +48,7 @@ def kill_ports(ports):
                     popen = subprocess.Popen('kill -9 %s' % pid, shell = True, stdout = subprocess.PIPE)
                     (data, err) = popen.communicate()
                     log('data:\n%s  \nerr:\n%s' % (data, err))
-                except Exception, e:
+                except Exception as e:
                     log('kill_ports exception:%s' % e)
 
         log('kill %s finish' % port)
@@ -71,7 +71,7 @@ def arglist_to_dict(arglist):
 
 
 def get_visiter_ip(request):
-    if request.META.has_key('HTTP_X_FORWARDED_FOR'):
+    if 'HTTP_X_FORWARDED_FOR' in request.META:
         ip = request.META['HTTP_X_FORWARDED_FOR']
     else:
         ip = request.META['REMOTE_ADDR']

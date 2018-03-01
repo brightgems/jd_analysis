@@ -35,6 +35,6 @@ def send_email(to_email, subject, body):
         server.quit()
         logging.debug('send_email success...')
         return True
-    except Exception, e:
+    except Exception as e:
         logging.exception('send_email exception msg:%s' % e)
         raise CusException('send_email', 'send_email error msg:%s' % e)

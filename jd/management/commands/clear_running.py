@@ -10,6 +10,7 @@ from django.core.management.base import BaseCommand
 # python manage.py run_analysis
 import config
 import utils
+import imp
 
 
 class Command(BaseCommand):
@@ -21,8 +22,8 @@ class Command(BaseCommand):
 
     #必须实现的方法
     def handle(self, *args, **options):
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
+        imp.reload(sys)
+        # sys.setdefaultencoding('utf-8')
 
         spargs = utils.arglist_to_dict(options['spargs'])
         key = spargs.get('key', 'running')

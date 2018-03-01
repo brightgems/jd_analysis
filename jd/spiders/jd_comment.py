@@ -12,9 +12,10 @@ import utils
 from scrapy import Spider
 from scrapy import Request
 from ..proxymanager import proxymng
+import imp
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+imp.reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 
 # python manage.py runspider -a url=https://item.jd.com/11478178241.html -a name=jd
@@ -116,16 +117,16 @@ class JDCommentSpider(Spider):
             )
 
     def parse_comment(self, response):
-        self.save_page('%s_%s.html' % (self.product_id, response.meta.get('page')), response.body)
-        if response.body == None or response.body == '':
+        self.save_page('%s_%s.html' % (self.product_id, response.meta.get('page')), response.text)
+        if response.text == None or response.text == '':
             self.red.rpush(self.urls_key, response.meta.get('info'))
             self.log('parse_comment parse NULL DATA:%s' % response.url)
             return
 
         try:
-            detect = chardet.detect(response.body)
+            detect = chardet.detect(response.text)
             encoding = detect.get('encoding', '')
-            body = response.body.decode(encoding, 'ignore')
+            body = response.text.decode(encoding, 'ignore')
 
             pattern = re.compile('\((.*?)\);', re.S)
             item = re.search(pattern, body)
@@ -195,7 +196,7 @@ class JDCommentSpider(Spider):
                     self.sql.insert_json(msg, self.item_table)
             self.sql.commit()
             proxymng.push_proxy(response.meta.get('proxy'))
-        except Exception, e:
+        except Exception as e:
             self.red.rpush(self.urls_key, response.meta.get('info'))
             self.logger.error('parse_comment parse Exception msg:%s url:%s' % (e, response.url))
 

@@ -65,7 +65,7 @@ class SqlHelper(object):
             command = 'CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET \'utf8\' ' % database_name
             # utils.log('sql helper create_database command:%s' % command)
             self.cursor.execute(command)
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper create_database exception:%s' % str(e), logging.WARNING)
 
     def create_table(self, command):
@@ -73,7 +73,7 @@ class SqlHelper(object):
             # utils.log('sql helper create_table command:%s' % command)
             self.cursor.execute(command)
             self.conn.commit()
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper create_table exception:%s' % str(e), logging.WARNING)
 
     def insert_data(self, command, data, commit = False):
@@ -83,14 +83,14 @@ class SqlHelper(object):
             self.cursor.execute(command, data)
             if commit:
                 self.conn.commit()
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper insert_data exception msg:%s' % e, logging.WARNING)
 
     def insert_json(self, data = {}, table_name = None, commit = False):
         try:
             keys = []
             vals = []
-            for k, v in data.items():
+            for k, v in list(data.items()):
                 keys.append(k)
                 vals.append(v)
             val_str = ','.join(['%s'] * len(vals))
@@ -103,7 +103,7 @@ class SqlHelper(object):
 
             if commit:
                 self.conn.commit()
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper insert_json exception msg:%s' % e, logging.WARNING)
 
     def commit(self):
@@ -115,7 +115,7 @@ class SqlHelper(object):
             data = self.cursor.execute(command)
             self.conn.commit()
             return data
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper execute exception msg:%s' % str(e))
             return None
 
@@ -125,7 +125,7 @@ class SqlHelper(object):
             utils.log('sql helper is_exists command:%s' % command)
             data = self.cursor.execute(command)
             return True if data == 1 else False
-        except Exception, e:
+        except Exception as e:
             logging.exception('sql helper is_exists exception msg:%s' % e)
 
     def query(self, command, commit = False, cursor_type = 'tuple'):
@@ -143,7 +143,7 @@ class SqlHelper(object):
             if commit:
                 self.conn.commit()
             return data
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper execute exception msg:%s' % str(e))
             return None
 
@@ -162,6 +162,6 @@ class SqlHelper(object):
             if commit:
                 self.conn.commit()
             return data
-        except Exception, e:
+        except Exception as e:
             utils.log('sql helper execute exception msg:%s' % str(e))
             return None

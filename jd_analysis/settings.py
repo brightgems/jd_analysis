@@ -75,11 +75,11 @@ WSGI_APPLICATION = 'jd_analysis.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'jd_analysis',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '',
-        'PORT': '',
+        'NAME': 'jdcm',
+        'USER': 'pig',
+        'PASSWORD': 'pig',
+        'HOST': '10.139.168.84',
+        'PORT': '3306',
     }
 }
 

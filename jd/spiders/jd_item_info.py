@@ -15,9 +15,7 @@ from scrapy.utils.project import get_project_settings
 from scrapy import Spider
 from scrapy import Request
 from sqlhelper import SqlHelper
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
+import imp
 
 
 # python manage.py runspider -a url=https://item.jd.com/11478178241.html -a name=jd
