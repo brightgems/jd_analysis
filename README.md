@@ -1,3 +1,11 @@
+
+**本项目是原Fork项目的分支（http://awolfly9.com/jd/），主要实现了以下更新：**
+- 从Python2.7升级到Python3.6
+- 增加requirements.txt
+- 修复中文字体无法正常显示的问题
+- 修复subprocess在windows中调用两个命令无法同时执行的错误
+
+
 # 京东商城商品评价数据分析
 附上使用地址
 体验地址：<http://awolfly9.com/jd/>
