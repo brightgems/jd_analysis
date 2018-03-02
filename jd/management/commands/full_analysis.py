@@ -34,8 +34,6 @@ class Command(BaseCommand):
 
     #必须实现的方法
     def handle(self, *args, **options):
-        imp.reload(sys)
-        sys.setdefaultencoding('utf-8')
 
         spargs = utils.arglist_to_dict(options['spargs'])
         key = spargs.get('key', 'running')

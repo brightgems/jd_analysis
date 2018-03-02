@@ -187,7 +187,6 @@ class Analysis(object):
         d = '%s/media/mask.png' % settings.BASE_DIR
         mask = np.array(Image.open(d))
         wordcloud = WordCloud(font_path = self.font_path, mask = mask).generate(contents)
-
         result = ''
         for i, ((word, count), font_size, position, orientation, color) in enumerate(wordcloud.layout_):
             if i <= 3:
