@@ -23,7 +23,7 @@
 * django-crontab
 * scrapy   
 * requests
-* pymysql
+* psycopg2
 * pandas
 * numpy
 * matplotlib
@@ -38,7 +38,7 @@
 安装命令：
 
 ```
-$ pip install Django django-crontab Scrapy requests pymysql pandas numpy wordcloud Markdown2 redis chardet
+$ pip install Django django-crontab Scrapy requests psycopg2 pandas numpy wordcloud Markdown2 redis chardet
 ```
 安装 matplotlib 请参考：[matplotlib github](https://github.com/ehmatthes/pcc/blob/master/chapter_15/README.md#installing-matplotlib)
 
@@ -73,7 +73,7 @@ $ vim jd_analysis/settings.py
 ----------
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'jd_analysis',
         'USER': 'root',
         'PASSWORD': '123456',

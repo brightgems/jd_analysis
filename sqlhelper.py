@@ -1,68 +1,73 @@
 #-*- coding: utf-8 -*-
 
 import logging
-import pymysql
+import psycopg2
 import utils
 import config
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
 class SqlHelper(object):
     def __init__(self):
-        self.conn = pymysql.connect(**config.database_config)
+        print('connecting to default database ...')
+        self.conn = psycopg2.connect(**config.database_config)
+        self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         self.cursor = self.conn.cursor()
-
-        try:
-            self.conn.select_db(config.database)
-        except:
+        database_config = config.database_config.copy()
+        database_config.update({'database':config.database})
+        sql = "SELECT 1 FROM pg_database where datname='{}'".format(config.database)
+        self.cursor.execute(sql)
+        if len(self.cursor.fetchall())==0:
             self.create_database(config.database)
-            self.conn.select_db(config.database)
-            self.init()
+
+        self.conn = psycopg2.connect(**database_config)
+        self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        self.cursor = self.conn.cursor()
+        self.init()
 
     def init(self):
         # 创建商品抓取记录表
         command = (
             "CREATE TABLE IF NOT EXISTS {} ("
-            "`id` BIGINT (15) NOT NULL AUTO_INCREMENT,"  # 商品 id
-            "`name` CHAR(200) NOT NULL,"  # 商品名称
-            "`average_score` INT(2) DEFAULT NULL,"  # 综合评分星级
-            "`good_count` INT(7) DEFAULT NULL ,"  # 好评数量
-            "`good_rate` FLOAT DEFAULT NULL,"  # 好评的比例
-            "`general_count` INT(4) DEFAULT NULL,"  # 中评数量
-            "`general_rate` FLOAT DEFAULT NULL,"  # 中评比例
-            "`poor_count` INT(4) DEFAULT NULL,"  # 差评数量
-            '`poor_rate` FLOAT DEFAULT NULL,'  # 差评比例
-            '`after_count` INT(5) DEFAULT NULL,'  # 追评数量
-            '`good_rate_style` INT(7) DEFAULT NULL,'  #
-            "`poor_rate_style` INT(5) DEFAULT NULL,"  #
-            "`general_rate_style` INT(5) DEFAULT NULL,"  #
-            "`comment_count` INT(7) DEFAULT NULL,"  # 总共评论数量
-            "`product_id` BIGINT(15) DEFAULT NULL,"  # 商品 id
-            "`good_rate_show` INT(3) DEFAULT NULL,"  # 显示的好评百分比
-            "`poor_rate_show` INT(3) DEFAULT NULL,"  # 显示的差评百分比
-            "`general_rate_show` INT(7) DEFAULT NULL,"  # 显示中评的百分比
-            "`url` TEXT NOT NULL,"  # 网站
-            "`item_ids` TEXT DEFAULT NULL,"  # 同一个商品的多个 ids
-            "`save_time` TIMESTAMP NOT NULL,"  # 抓取数据的时间
-            "PRIMARY KEY(id)"
-            ") ENGINE=InnoDB".format(config.jd_item_table))
+            "id SERIAL PRIMARY KEY, "  # 商品 id
+            "name CHAR(200) NOT NULL,  "  # 商品名称
+            "average_score numeric(2) DEFAULT NULL, "  # 综合评分星级
+            "good_count numeric(7) DEFAULT NULL ,  "  # 好评数量
+            "good_rate FLOAT DEFAULT NULL,  "  # 好评的比例
+            "general_count numeric(4) DEFAULT NULL,  "  # 中评数量
+            "general_rate FLOAT DEFAULT NULL, "  # 中评比例
+            "poor_count numeric(4) DEFAULT NULL, " # 差评数量
+            "poor_rate FLOAT DEFAULT NULL,  "  # 差评比例
+            "after_count numeric(5) DEFAULT NULL,  "# 追评数量
+            "good_rate_style numeric(7) DEFAULT NULL,"
+            "poor_rate_style numeric(5) DEFAULT NULL, "
+            "general_rate_style numeric(5) DEFAULT NULL,"
+            "comment_count numeric(7) DEFAULT NULL,"  # 总共评论数量
+            "product_id numeric(15) DEFAULT NULL,  "  # 商品 id
+            "good_rate_show numeric(3) DEFAULT NULL,"  # 显示的好评百分比  
+            "poor_rate_show numeric(3) DEFAULT NULL, "  # 显示的差评百分比 
+            "general_rate_show numeric(7) DEFAULT NULL,"  # 显示中评的百分比
+            "url TEXT NOT NULL,  "  # 网站
+            "item_ids TEXT DEFAULT NULL," # 同一个商品的多个 ids
+            "save_time TIMESTAMP NOT NULL"  # 抓取数据的时间
+            ")".format(config.jd_item_table))
         self.create_table(command)
 
         # 创建分析商品评论结果表
         command = (
             "CREATE TABLE IF NOT EXISTS {} ("
-            "`id` INT(5) NOT NULL AUTO_INCREMENT,"  # 自增 id
-            "`product_id` BIGINT(15) DEFAULT NULL ,"  # 商品 id
-            "`info` CHAR(255) DEFAULT NULL,"  # 分析结果的信息
-            "`type` CHAR(10) DEFAULT NULL,"  # 分析结果类型
-            "`guid` CHAR(40) NOT NULL,"  # guid
-            "`save_time` TIMESTAMP NOT NULL,"  # 分析数据的时间
-            "PRIMARY KEY(id)"
-            ") ENGINE=InnoDB".format(config.analysis_item_table))
+            "id SERIAL PRIMARY KEY, "  # 自增 id
+            "product_id numeric(15) DEFAULT NULL ,"  # 商品 id
+            "info CHAR(255) DEFAULT NULL,"  # 分析结果的信息
+            "type CHAR(10) DEFAULT NULL,"  # 分析结果类型
+            "guid CHAR(40) NOT NULL,"  # guid
+            "save_time TIMESTAMP NOT NULL"  # 分析数据的时间
+            ")".format(config.analysis_item_table))
         self.create_table(command)
 
     def create_database(self, database_name):
         try:
-            command = 'CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET \'utf8\' ' % database_name
+            command = 'CREATE DATABASE %s WITH ENCODING \'utf8\' ' % database_name
             # utils.log('sql helper create_database command:%s' % command)
             self.cursor.execute(command)
         except Exception as e:
@@ -96,7 +101,7 @@ class SqlHelper(object):
             val_str = ','.join(['%s'] * len(vals))
             key_str = ','.join(keys)
 
-            command = "INSERT IGNORE INTO {table} ({keys}) VALUES({values})". \
+            command = "INSERT INTO {table} ({keys}) VALUES({values})". \
                 format(keys = key_str, values = val_str, table = table_name)
             # utils.log('insert_json command:%s' % command)
             self.cursor.execute(command, tuple(vals))
@@ -121,9 +126,10 @@ class SqlHelper(object):
 
     def is_exists(self, table_name):
         try:
-            command = "SHOW TABLES LIKE '%s'" % table_name
+            command = "select 1 from pg_tables where tablename='%s'" % table_name
             utils.log('sql helper is_exists command:%s' % command)
             data = self.cursor.execute(command)
+            
             return True if data == 1 else False
         except Exception as e:
             logging.exception('sql helper is_exists exception msg:%s' % e)
@@ -134,7 +140,7 @@ class SqlHelper(object):
 
             cursor = None
             if cursor_type == 'dict':
-                cursor = self.conn.cursor(pymysql.cursors.DictCursor)
+                cursor = self.conn.cursor(psycopg2.extras.DictCursor)
             else:
                 cursor = self.cursor
 
@@ -153,7 +159,7 @@ class SqlHelper(object):
 
             cursor = None
             if cursor_type == 'dict':
-                cursor = self.conn.cursor(pymysql.cursors.DictCursor)
+                cursor = self.conn.cursor(psycopg2.extras.DictCursor)
             else:
                 cursor = self.cursor
 

@@ -51,31 +51,30 @@ class JDCommentSpider(Spider):
     def init(self):
         command = (
             "CREATE TABLE IF NOT EXISTS {} ("
-            "`id` BIGINT (15) NOT NULL AUTO_INCREMENT,"  # 评论的 id
-            "`content` TEXT NOT NULL,"  # 评论的内容
-            "`creation_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"  # 评论创建的时间
-            "`reply_count` INT(4) DEFAULT NULL ,"  # 回复数量
-            "`score` INT(2) DEFAULT NULL,"  # 评星
-            "`useful_vote_count` INT(5) DEFAULT NULL,"  # 其他用户觉得有用的数量
-            "`useless_vote_count` INT(4) DEFAULT NULL,"  # 其他用户觉得无用的数量
-            "`user_level_id` INT(4) DEFAULT NULL,"  # 评论用户等级的 id
-            '`user_province` CHAR(8) DEFAULT NULL,'  # 用户的省份
-            '`nickname` CHAR(20) DEFAULT NULL,'  # 评论用户的昵称
-            '`product_color` CHAR(50) DEFAULT NULL,'  # 商品的颜色
-            "`product_size` CHAR(50) DEFAULT NULL,"  # 商品的大小
-            "`user_level_name` CHAR(20) DEFAULT NULL,"  # 评论用户的等级
-            "`user_client` INT(5) DEFAULT NULL,"  # 用户评价平台
-            "`user_client_show` CHAR(20) DEFAULT NULL,"  # 用户评价平台
-            "`is_mobile` INT (3) DEFAULT NULL,"  # 是否是在移动端完成的评价
-            "`days` INT(3) DEFAULT NULL,"  # 购买后评论的天数
-            "`reference_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"  # 购买的时间
-            "`after_days` INT(3) DEFAULT NULL,"  # 购买后再次评论的天数
-            "`images_count` INT(3) DEFAULT NULL,"  # 评论总图片的数量
-            "`ip` CHAR(20) DEFAULT NULL,"  # 再次评论时的 ip 地址
-            "`after_content` TEXT DEFAULT NULL,"  # 再次评论的内容
-            "`save_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"  # 抓取数据的时间
-            "PRIMARY KEY(id)"
-            ") ENGINE=InnoDB".format(self.item_table))
+            "id serial PRIMARY KEY,"  # 评论的 id
+            "content TEXT NOT NULL,"  # 评论的内容
+            "creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"  # 评论创建的时间
+            "reply_count numeric(4) DEFAULT NULL ,"  # 回复数量
+            "score numeric(2) DEFAULT NULL,"  # 评星
+            "useful_vote_count numeric(5) DEFAULT NULL,"  # 其他用户觉得有用的数量
+            "useless_vote_count numeric(4) DEFAULT NULL,"  # 其他用户觉得无用的数量
+            "user_level_id numeric(4) DEFAULT NULL,"  # 评论用户等级的 id
+            'user_province CHAR(8) DEFAULT NULL,'  # 用户的省份
+            'nickname CHAR(20) DEFAULT NULL,'  # 评论用户的昵称
+            'product_color CHAR(50) DEFAULT NULL,'  # 商品的颜色
+            "product_size CHAR(50) DEFAULT NULL,"  # 商品的大小
+            "user_level_name CHAR(20) DEFAULT NULL,"  # 评论用户的等级
+            "user_client numeric(5) DEFAULT NULL,"  # 用户评价平台
+            "user_client_show CHAR(20) DEFAULT NULL,"  # 用户评价平台
+            "is_mobile numeric (3) DEFAULT NULL,"  # 是否是在移动端完成的评价
+            "days numeric(3) DEFAULT NULL,"  # 购买后评论的天数
+            "reference_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"  # 购买的时间
+            "after_days numeric(3) DEFAULT NULL,"  # 购买后再次评论的天数
+            "images_count numeric(3) DEFAULT NULL,"  # 评论总图片的数量
+            "ip CHAR(20) DEFAULT NULL,"  # 再次评论时的 ip 地址
+            "after_content TEXT DEFAULT NULL,"  # 再次评论的内容
+            "save_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"  # 抓取数据的时间
+            ")".format(self.item_table))
         self.sql.create_table(command)
 
     def start_requests(self):
@@ -213,6 +212,6 @@ class JDCommentSpider(Spider):
                 f.write(data)
                 f.close()
 
-    def close(spider, reason):
+    def close(self, spider, reason):
         # 事务提交数据
         spider.sql.commit()

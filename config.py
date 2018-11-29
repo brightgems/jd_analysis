@@ -2,11 +2,12 @@
 
 # local
 database_config = {
-    'host': '10.139.168.84',
-    'port': 3306,
-    'user': 'pig',
-    'password': 'pig',
-    'charset': 'utf8',
+    'host': '127.0.0.1',
+    'port': 5433,
+    'database': 'jdcm',
+    'user': 'jcr_user',
+    'password': '7ujm',
+    # 'charset': 'utf8',
 }
 
 database = 'jd'
@@ -15,7 +16,7 @@ jd_item_table = 'item'
 analysis_item_table = 'analysis'
 
 redis_pass = ''
-redis_host = '10.139.168.84'
+redis_host = '127.0.0.1'
 redis_part = '6379'
 redis_db = 10
 

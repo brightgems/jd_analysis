@@ -102,7 +102,6 @@ sql = SqlHelper()
 
 def push_redis(guid, product_id, info, type = 'word', save_to_mysql = True):
     data = {
-        'id': None,
         'product_id': product_id,
         'info': info,
         'type': type,
@@ -120,12 +119,11 @@ def create_analysis_table(product_id):
     # 创建分析商品评论结果表
     command = (
         "CREATE TABLE IF NOT EXISTS {} ("
-        "`id` INT(5) NOT NULL AUTO_INCREMENT,"  # 自增 id
-        "`product_id` BIGINT(15) DEFAULT NULL ,"  # 商品 id
-        "`info` CHAR(255) DEFAULT NULL,"  # 分析结果的信息
-        "`type` CHAR(10) DEFAULT NULL,"  # 分析结果类型
-        "`guid` CHAR(40) NOT NULL,"  # guid
-        "`save_time` TIMESTAMP NOT NULL,"  # 分析数据的时间
-        "PRIMARY KEY(id)"
-        ") ENGINE=InnoDB".format(config.analysis_item_table + '_' + product_id))
+        "id SERIAL PRIMARY KEY,"  # 自增 id
+        "product_id NUMERIC(15) DEFAULT NULL ,"  # 商品 id
+        "info CHAR(255) DEFAULT NULL,"  # 分析结果的信息
+        "type CHAR(10) DEFAULT NULL,"  # 分析结果类型
+        "guid CHAR(40) NOT NULL,"  # guid
+        "save_time TIMESTAMP NOT NULL"  # 分析数据的时间
+        ")".format(config.analysis_item_table + '_' + product_id))
     sql.create_table(command)
