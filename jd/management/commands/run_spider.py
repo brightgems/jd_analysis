@@ -36,12 +36,13 @@ def runspider(spargs):
     if not os.path.exists('log'):
         os.makedirs('log')
 
-    configure_logging(install_root_handler = False)
+    configure_logging(install_root_handler = True)
     logging.basicConfig(
             filename = 'log/%s.log' % name,
             format = '%(levelname)s %(asctime)s: %(message)s',
             level = logging.ERROR
     )
+
     print("get_project_settings().attributes:", get_project_settings().attributes['SPIDER_MODULES'])
     process = CrawlerProcess(get_project_settings())
     start_time = time.time()

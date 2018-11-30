@@ -97,7 +97,7 @@ class RunAnalysis(object):
         logging.basicConfig(
                 filename = 'log/%s.log' % self.product_id,
                 format = '%(levelname)s %(asctime)s: %(message)s',
-                level = logging.DEBUG
+                level = logging.INFO
         )
 
     def run(self):

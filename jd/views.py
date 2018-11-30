@@ -64,7 +64,6 @@ def runspider(request):
             command = "SELECT id FROM {table} WHERE id={product_id}". \
                 format(table = config.jd_item_table, product_id = product_id)
             result = sql.query_one(command)
-
             if result == None:
                 name = 'jd'
                 
@@ -82,12 +81,12 @@ def runspider(request):
                         format(config.analysis_item_table, product_id)
                     result = sql.query(command)
                     for res in result:
-                        utils.push_redis(data.get('guid'), res[1], res[2], res[3], save_to_mysql = False)
+                        utils.push_redis(data.get('guid'), int(res[1]), res[2], res[3], save_to_mysql = False)
                 else:
-                    command = "DELETE FROM {0} WHERE produce_id={1}".format(config.analysis_item_table, product_id)
+                    command = "DELETE FROM {0} WHERE product_id={1}".format(config.analysis_item_table, product_id)
                     sql.execute(command)
                     #重新分析数据
-                    cmd = 'cd {dir};python manage.py analysis -a url={url} -a name={name} -a guid={guid} -a ' \
+                    cmd = 'python manage.py full_analysis -a url={url} -a name={name} -a guid={guid} -a ' \
                           'product_id={product_id};'. \
                         format(url = url, name = 'jd', dir = settings.BASE_DIR, guid = data.get('guid'),
                                product_id = product_id)
@@ -118,7 +117,7 @@ def randitem(request):
             data['guid'] = str(uuid.uuid4())
             data['info'] = '成功接收数据，正在为您抓取并分析数据，精彩稍候呈现'
 
-            cmd = 'cd {dir};python manage.py rand_item_analysis -a name={name} -a guid={guid}'. \
+            cmd = 'python manage.py rand_item_analysis -a name={name} -a guid={guid}'. \
                 format(dir = settings.BASE_DIR, name = 'jd', guid = data.get('guid'))
             utils.log(cmd)
             subprocess.Popen(cmd, shell = True)

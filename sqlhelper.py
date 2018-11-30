@@ -19,7 +19,7 @@ class SqlHelper(object):
         self.cursor.execute(sql)
         if len(self.cursor.fetchall())==0:
             self.create_database(config.database)
-
+        
         self.conn = psycopg2.connect(**database_config)
         self.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         self.cursor = self.conn.cursor()
@@ -29,7 +29,7 @@ class SqlHelper(object):
         # 创建商品抓取记录表
         command = (
             "CREATE TABLE IF NOT EXISTS {} ("
-            "id SERIAL PRIMARY KEY, "  # 商品 id
+            "id bigint PRIMARY KEY, "  # 商品 id
             "name CHAR(200) NOT NULL,  "  # 商品名称
             "average_score numeric(2) DEFAULT NULL, "  # 综合评分星级
             "good_count numeric(7) DEFAULT NULL ,  "  # 好评数量
@@ -128,9 +128,10 @@ class SqlHelper(object):
         try:
             command = "select 1 from pg_tables where tablename='%s'" % table_name
             utils.log('sql helper is_exists command:%s' % command)
-            data = self.cursor.execute(command)
             
-            return True if data == 1 else False
+            data = self.query(command)
+            utils.log('sql helper is_exists command:%s' % str(data))
+            return True if len(data)>0 else False
         except Exception as e:
             logging.exception('sql helper is_exists exception msg:%s' % e)
 
@@ -140,10 +141,9 @@ class SqlHelper(object):
 
             cursor = None
             if cursor_type == 'dict':
-                cursor = self.conn.cursor(psycopg2.extras.DictCursor)
+                cursor = self.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             else:
                 cursor = self.cursor
-
             cursor.execute(command)
             data = cursor.fetchall()
             if commit:
@@ -151,6 +151,7 @@ class SqlHelper(object):
             return data
         except Exception as e:
             utils.log('sql helper execute exception msg:%s' % str(e))
+            raise e
             return None
 
     def query_one(self, command, commit = False, cursor_type = 'tuple'):
@@ -159,7 +160,7 @@ class SqlHelper(object):
 
             cursor = None
             if cursor_type == 'dict':
-                cursor = self.conn.cursor(psycopg2.extras.DictCursor)
+                cursor = self.conn.cursor(psycopg2.extras.RealDictCursor)
             else:
                 cursor = self.cursor
 

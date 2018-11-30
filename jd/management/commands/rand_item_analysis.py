@@ -60,10 +60,11 @@ def randitem(spargs):
 
     # 如果数据库中没有，则重新抓取
     if result == None:
-        cmd = 'cd {dir};python manage.py real_time_analysis -a name={name} -a guid={guid} ' \
+        cmd = 'python manage.py real_time_analysis -a name={name} -a guid={guid} ' \
               '-a product_id={product_id} -a url={url};'. \
             format(url = str(url), name = 'jd', dir = settings.BASE_DIR, guid = guid,
                    product_id = id)
+        print(cmd)
         subprocess.Popen(cmd, shell = True)
     else:
         # 如果数据库中存在则，直接读取数据库中数据

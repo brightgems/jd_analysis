@@ -51,7 +51,7 @@ class JDCommentSpider(Spider):
     def init(self):
         command = (
             "CREATE TABLE IF NOT EXISTS {} ("
-            "id serial PRIMARY KEY,"  # 评论的 id
+            "id bigint PRIMARY KEY,"  # 评论的 id
             "content TEXT NOT NULL,"  # 评论的内容
             "creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"  # 评论创建的时间
             "reply_count numeric(4) DEFAULT NULL ,"  # 回复数量

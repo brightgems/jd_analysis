@@ -214,7 +214,7 @@ class JDSpider(Spider):
                     self.red.rpush(guid, self.product_id)
 
             # 正常抓取
-            count = min(page_count, inner_crawl_page)
+            count = int(min(page_count, inner_crawl_page))
             for i in range(count):
                 # sort type 5:推荐排序 6:时间排序
                 url = 'https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv' \
